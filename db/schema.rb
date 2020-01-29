@@ -12,28 +12,13 @@
 
 ActiveRecord::Schema.define(version: 2020_01_28_162332) do
 
-  create_table "aircrafts", force: :cascade do |t|
-    t.string "aircraft_no"
-    t.string "manufacturer"
-    t.integer "capacity"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
-  create_table "airports", force: :cascade do |t|
-    t.string "code"
-    t.string "country"
-    t.string "city"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
   create_table "flights", force: :cascade do |t|
     t.string "flight_no"
     t.string "origin"
     t.string "destination"
-    t.datetime "start_date"
-    t.datetime "end_date"
+    t.datetime "departure"
+    t.datetime "arrival"
+    t.integer "price"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

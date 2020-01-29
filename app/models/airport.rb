@@ -1,2 +1,0 @@
-class Airport < ApplicationRecord
-end

@@ -1,7 +1,18 @@
-<p id="notice"><%= notice %></p>
+<h1>
+    <%= @flight.flight_no %>
+    <%= @flight.origin %> flight to
+    <%= @flight.destination %>
+</h1>
 
-<%= @flight.flight_no %>
-<%= @flight.origin %>
+<div>
+    <div class="flight_details">
+        <p> 
+            Flight from <%= @flight.origin %>
+            departs at <%= @flight.departure %>
+            and arrives at <%= @flight.arrival %>
+        </p>
+        <%= link_to 'Book Flight', flights_path %>
+    </div>
+</div>
 
-<%= link_to 'Edit', edit_flight_path(@flight) %> |
 <%= link_to 'Back', flights_path %>
