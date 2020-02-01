@@ -11,7 +11,7 @@
             departs at <%= @flight.departure %>
             and arrives at <%= @flight.arrival %>
         </p>
-        <%= link_to 'Book Flight', flights_path %>
+        <%= link_to 'Book Flight', new_booking_path(@flight.id) %>
     </div>
 </div>
 

@@ -27,6 +27,7 @@
         <td><%= flight.arrival %></td>
         <td><%= format_amount(flight.price) %></td>
         <td><%= link_to 'Select', flight %></td>
+        # <td><%= link_to 'Book Now', new_booking_path(flight.id) %></td>
       </tr>
     <% end %>
   </tbody>

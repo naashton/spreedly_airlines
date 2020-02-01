@@ -1,5 +1,34 @@
-<h1>New Booking</h1>
+<h1>Book Flight</h1>
 
-<%= render 'form', booking: @booking %>
+<div class="booking">
+    <div class="flight-details">
+        <%= @flight.flight_no %>
+        <%= @flight.departure %>
+        <%= @flight.arrival %>
+        <%= format_amount(@flight.price) %>
+    </div>
 
-<%= link_to 'Back', bookings_path %>
+    <div class="booking-form">
+        <%= form_with(url: "/bookings", method: "post") do %>
+            <%= label_tag(:credit_card, "Credit Card:") %>
+            <%= text_field_tag(:credit_card) %>
+
+            <%= label_tag(:first_name, "First Name:") %>
+            <%= text_field_tag(:first_name) %>
+
+            <%= label_tag(:last_name, "Last Name:") %>
+            <%= text_field_tag(:last_name) %>
+
+            <%= label_tag(:expiration_date, "Expiration Date:") %>
+            <%= text_field_tag(:expiration_date) %>
+
+            <%= label_tag(:security_code, "Security Code:") %>
+            <%= text_field_tag(:security_code) %>
+
+            <%= label_tag(:store, "Store") %>
+            <%= check_box_tag(:store) %><br>
+
+            <%= submit_tag("Book Flight") %>
+        <% end%>
+    </div>
+</div>

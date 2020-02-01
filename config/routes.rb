@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
-  resources :bookings
   get 'welcome/index'
+  resources :bookings
   resources :payment_methods
   resources :transactions
   resources :flights, only: [:index, :show]
