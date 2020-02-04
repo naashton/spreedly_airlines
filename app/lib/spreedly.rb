@@ -27,49 +27,97 @@ class Spreedly < Rails::Application
         resp = build_request('get', 'gateways.json')
 
         r_body = JSON.parse(resp.body)
-        puts r_body
         gateway_token = r_body['gateways'][0]['token']
     end
 
     # Create a payment method
-    def create_payment_method
+    def create_payment_method(payment_details)
         gateway_token = self.get_created_gateways
         body = {
-            "transaction" => {
+            "payment_method" => {
                 "credit_card" => {
-                    "first_name" => "Joe",
-                    "last_name" => "Smith",
-                    "number" => "4111111111111111",
-                    "month" => "12",
-                    "year" => "2020",
-                },
-                "amount" => 100,
-                "currency_code" => "USD"
+                    "first_name" => payment_details[:first_name],
+                    "last_name" => payment_details[:last_name],
+                    "number" => payment_details[:credit_card],
+                    "verification_value" => payment_details[:security_code],
+                    "month" => payment_details[:expiration_month],
+                    "year" => payment_details[:expiration_year],
+                }
             }
         }
 
-        resp = build_request('post', "gateways/#{gateway_token}/purchase.json", {'body' => body})
-
-        puts resp.code
-        puts resp.body
-
+        resp = build_request('post', "payment_methods.json", {'body' => body})
         body = JSON.parse(resp.body)
     end
 
     # Execute a purchase with an existing token
     # @todo: This is essentially the same call as the create payment method with a different body
-    def create_purchase_transaction
-        uri = URI(BASE_URL + "gateways/#{gateway_token}/purchase.json")
-        request = Net::HTTP::Post.new(uri)
-        request.basic_auth ENV_KEY, APP_SECRET
+    def create_purchase_transaction(payment_details)
+        gateway_token = self.get_created_gateways
 
+        # Note: Cannot perform type coercion
+        amount = payment_details[:amount].to_i
         body = {
             "transaction" => {
-                "payment_method_token" => '',
-                "amount" => 100,
+                "credit_card" => {
+                    "first_name" => payment_details[:first_name],
+                    "last_name" => payment_details[:last_name],
+                    "number" => payment_details[:credit_card],
+                    "verification_value" => payment_details[:security_code],
+                    "month" => payment_details[:expiration_month],
+                    "year" => payment_details[:expiration_year],
+                },
+                "amount" => amount,
                 "currency_code" => "USD"
             }
         }
+
+        resp = build_request('post', "gateways/#{gateway_token}/purchase.json", {'body' => body})
+    end
+
+    # Execute a purchase through the receiver
+    def payment_method_distribution(receiver_token, pm_token, amount)
+        body = {
+            "delivery" => {
+                "payment_method_token" => pm_token,
+                "url" => "https://spreedly-echo.herokuapp.com",
+                "headers" => "Content-Type: application/json",
+                "body" => {
+                    "amount" => amount,
+                    "card_number" => "{{credit_card_number}}"
+                }
+            }
+        }
+        resp = build_request('post', "receivers/#{receiver_token}/deliver.json", {'body' => body})
+    end
+
+    # Create a receiver for PMD transactions
+    def create_receiver
+        body = {
+            "receiver" => {
+                "receiver_type" => "test",
+                "hostnames" => "https://spreedly-echo.herokuapp.com",
+                "credentials" => [
+                    {
+                        "name" => "app-id",
+                        "value" => 1234,
+                        "safe" => true
+                    },
+                    {
+                        "name" => "app-secret",
+                        "value" => 5678
+                    }
+                ]
+            }
+        }
+        resp = build_request('post', "receivers.json", {'body' => body})
+        puts resp.body
+    end
+
+    def get_receiver_token
+        resp = build_request('get', 'receivers.json')
+        body = JSON.parse(resp.body)
+        token = body['receivers'][0]['token']
     end
 
     private
@@ -87,6 +135,7 @@ class Spreedly < Rails::Application
                 puts "Error"
             end
 
+            # req.basic_auth(@env_key, @app_secret)
             req.basic_auth(ENV_KEY, APP_SECRET)
 
             if args.key?("body")
@@ -101,14 +150,22 @@ class Spreedly < Rails::Application
             http = Net::HTTP.new(uri.host, uri.port)
             http.use_ssl = true
     
-            resp = http.request(req)
+            begin
+                resp = http.request(req)
+            rescue Net::HTTPBadResponse => e
+                resp = e
+            end
 
             return resp
         end
 end
 
 
-s = Spreedly.new
-s.create_payment_method
+# env_key = Rails.application.credentials.spreedly[:environment_key]
+# secret_key = Rails.application.credentials.spreedly[:access_secret]
+# s = Spreedly.new
+# s.create_payment_method
 # s.get_created_gateways
+
 # s.create_test_gateway
+# s.get_receiver_token

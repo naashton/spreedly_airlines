@@ -29,15 +29,18 @@ ActiveRecord::Schema.define(version: 2020_01_29_224646) do
   end
 
   create_table "payment_methods", force: :cascade do |t|
+    t.string "spreedly_payment_token"
     t.integer "primary_account_number"
     t.string "first_name"
     t.string "last_name"
-    t.datetime "expiration_date"
+    t.string "expiration_month"
+    t.string "expiration_year"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "transactions", force: :cascade do |t|
+    t.json "spreedly_transaction"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

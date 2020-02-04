@@ -1,3 +1,5 @@
+require 'Spreedly'
+
 class BookingsController < ApplicationController
   before_action :set_booking, only: [:show, :edit, :update, :destroy]
 
@@ -24,12 +26,46 @@ class BookingsController < ApplicationController
   # POST /bookings
   # POST /bookings.json
   def create
-    puts "HERE"
-    puts '------------------'
-    puts params
-    # @booking = Booking.new(booking_params)
-    puts Rails.application.credentials.spreedly[:environment_key]
-    puts Rails.application.credentials.spreedly[:secret_key]
+    spreedly = Spreedly.new
+    pm_token = nil
+
+    if(params[:pmd])
+      # PMD 
+      # - Get the receiver token. Create one if it doesn't exist.
+      # - Create a payment method, get payment method token
+      # - Use payment method token to process a purchase transaction
+      receiver_token = spreedly.get_receiver_token
+      payment_method = spreedly.create_payment_method(params)
+      pm_token = payment_method['transaction']['payment_method']['token']
+      # Save the payment method if user specified
+      transaction = spreedly.payment_method_distribution(receiver_token, pm_token, params[:amount])
+    else
+      # Execute simple purchase transaction
+      transaction = spreedly.create_purchase_transaction(params)
+    end
+
+    if(params[:store])
+      PaymentMethod.create([
+        {
+          spreedly_payment_token: pm_token,
+          primary_account_number: params[:credit_card],
+          first_name: params[:first_name],
+          last_name: params[:last_name],
+          expiration_month: params[:expiration_month],
+          expiration_year: params[:expiration_year],
+        }
+        ])
+      end
+      
+    puts '--------------------------'
+    puts transaction.code
+    puts transaction.body
+    puts '--------------------------'
+    if transaction.code.kind_of? Net::HTTPSuccess 
+      Transaction.create(
+        { spreedly_transaction: transaction.body }
+      )
+    end
     
   end
 
