@@ -27,16 +27,18 @@ class BookingsController < ApplicationController
   # POST /bookings.json
   def create
     spreedly = Spreedly.new
-    pm_token = nil
-
+    payment_method = spreedly.create_payment_method(params)
+    puts payment_method.code
+    pm_token = payment_method['transaction']['payment_method']['token']
+    puts '--------------'
+    puts pm_token
+    
     if(params[:pmd])
       # PMD 
       # - Get the receiver token. Create one if it doesn't exist.
       # - Create a payment method, get payment method token
       # - Use payment method token to process a purchase transaction
       receiver_token = spreedly.get_receiver_token
-      payment_method = spreedly.create_payment_method(params)
-      pm_token = payment_method['transaction']['payment_method']['token']
       # Save the payment method if user specified
       transaction = spreedly.payment_method_distribution(receiver_token, pm_token, params[:amount])
     else
@@ -54,19 +56,16 @@ class BookingsController < ApplicationController
           expiration_month: params[:expiration_month],
           expiration_year: params[:expiration_year],
         }
-        ])
-      end
+      ])
+    end
       
-    puts '--------------------------'
-    puts transaction.code
-    puts transaction.body
-    puts '--------------------------'
     if transaction.code.kind_of? Net::HTTPSuccess 
       Transaction.create(
         { spreedly_transaction: transaction.body }
       )
     end
     
+    return transaction
   end
 
   private

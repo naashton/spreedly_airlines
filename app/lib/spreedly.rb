@@ -47,7 +47,7 @@ class Spreedly < Rails::Application
         }
 
         resp = build_request('post', "payment_methods.json", {'body' => body})
-        body = JSON.parse(resp.body)
+        # body = JSON.parse(resp.body)
     end
 
     # Execute a purchase with an existing token
@@ -114,10 +114,23 @@ class Spreedly < Rails::Application
         puts resp.body
     end
 
+    # Retrieve the gateway token
+    # Note: Multiple gateways are allowed, so a bit more finesse would be appropriate
     def get_receiver_token
         resp = build_request('get', 'receivers.json')
         body = JSON.parse(resp.body)
         token = body['receivers'][0]['token']
+    end
+
+    # Verify that the card is valid
+    def verify_payment_method(pm_token)
+        gateway_token = self.get_created_gateways
+        body = {
+            "transaction" => {
+                "payment_method_token" => pm_token,
+            }
+        }
+        resp = build_request('post', "gateways/#{gateway_token}/verify.json", {"body" => body})
     end
 
     private
@@ -153,7 +166,7 @@ class Spreedly < Rails::Application
             begin
                 resp = http.request(req)
             rescue Net::HTTPBadResponse => e
-                resp = e
+                # Capture error
             end
 
             return resp
