@@ -33,6 +33,7 @@
             <%= check_box_tag(:pmd) %><br>
 
             <%= hidden_field_tag(:amount, @flight.price) %>
+            <%= hidden_field_tag(:id, @flight.id) %>
 
             <%= submit_tag("Book Flight") %>
         <% end%>

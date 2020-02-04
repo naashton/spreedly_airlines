@@ -17,9 +17,6 @@ class Spreedly < Rails::Application
         }
 
         resp = build_request('post', 'gateways.json', {'body' => body})
-
-        puts resp.code
-        puts resp.body
     end
 
     # Get list of created gateways
@@ -47,7 +44,6 @@ class Spreedly < Rails::Application
         }
 
         resp = build_request('post', "payment_methods.json", {'body' => body})
-        # body = JSON.parse(resp.body)
     end
 
     # Execute a purchase with an existing token

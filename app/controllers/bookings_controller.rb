@@ -1,4 +1,6 @@
 require 'Spreedly'
+require 'json'
+require 'net/http'
 
 class BookingsController < ApplicationController
   before_action :set_booking, only: [:show, :edit, :update, :destroy]
@@ -27,12 +29,17 @@ class BookingsController < ApplicationController
   # POST /bookings.json
   def create
     spreedly = Spreedly.new
-    payment_method = spreedly.create_payment_method(params)
-    puts payment_method.code
-    pm_token = payment_method['transaction']['payment_method']['token']
-    puts '--------------'
-    puts pm_token
     
+    payment_method = spreedly.create_payment_method(params)
+
+    if payment_method.kind_of? Net::HTTPSuccess
+      pm_parsed = JSON.parse(payment_method.body)
+      pm_token = pm_parsed['transaction']['payment_method']['token']
+    else
+      # Bad payment method
+      redirect_to '/flights', flash: { error: payment_method.body }
+    end
+
     if(params[:pmd])
       # PMD 
       # - Get the receiver token. Create one if it doesn't exist.
@@ -59,13 +66,14 @@ class BookingsController < ApplicationController
       ])
     end
       
-    if transaction.code.kind_of? Net::HTTPSuccess 
+    if transaction.kind_of? Net::HTTPSuccess 
       Transaction.create(
         { spreedly_transaction: transaction.body }
       )
     end
     
-    return transaction
+    redirect_to '/flights'
+    # return transaction
   end
 
   private

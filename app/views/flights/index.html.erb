@@ -2,6 +2,10 @@
 
 <h1>Flights</h1>
 
+<% flash.each do |key, value| %>
+  <%= content_tag :div, value, class: "flash #{key}" %>
+<% end %>
+
 <table>
   <thead>
     <tr>
