@@ -1,24 +1,21 @@
-# README
+# Spreedly Airlines
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Welcome to Spreedly Airlines. Spreedly Airlines is built with Rails!
 
-Things you may want to cover:
+### Dependencies
+Rails 6.0.2.1
+ruby 2.5.7p206
 
-* Ruby version
+### Getting Started
+* Clone the repository to your local machine
+* Run `bundle`
+* Run `rails s`
 
-* System dependencies
+Default execution will setup `localhost:3000`.
 
-* Configuration
+### About Us
+We are a very small startup in our infancy. You should not use this app to book real flights for real holidays. 
 
-* Database creation
+You should use this app to learn about Spreedly's payment processing API. This app has implemented the basic verify, gateways, payment method, purchase API calls, as well as additional entry points, like receivers, in order to utilize `Payment Method Distribution` to use Spreedly as a proxy to process payments through 3rd party API's.
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+For more information, e-mail the developer at `nick@spreedly.com`.
