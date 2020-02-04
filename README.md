@@ -8,8 +8,10 @@ ruby 2.5.7p206
 
 ### Getting Started
 * Clone the repository to your local machine
-* Run `bundle`
-* Run `rails s`
+* `bundle`
+* `db:migrate`
+* `db:seed`
+* `rails s`
 
 Default execution will setup `localhost:3000`.
 
